@@ -17,21 +17,21 @@ const generateNumericOTP = (length) => {
 };
 
 // Function to hash the password using bcrypt
-const hashPassword = async (password) => {
-    const saltRounds = 10;
-    return bcrypt.hash(password, saltRounds);
-};
+// const hashPassword = async (password) => {
+//     const saltRounds = 10;
+//     return bcrypt.hash(password, saltRounds);
+// };
 
 // Signup route for user registration
 const signup = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email } = req.body;
 
         const otp = generateNumericOTP(6);
-        const hashedPassword = await hashPassword(password);
+        // const hashedPassword = await hashPassword(password);
 
         // Use "pending" as the initial verification status
-        const newUser = new User({ name, email, password: hashedPassword, verificationStatus: 'pending', otp });
+        const newUser = new User({ name, email, verificationStatus: 'pending', otp });
         await newUser.save();
 
         // Send verification email with OTP
@@ -65,31 +65,31 @@ const verifyOTP = async (req, res) => {
     }
 };
 
-const signin = async (req, res) => {
-    const { email, password } = req.body;
+// const signin = async (req, res) => {
+//     const { email, password } = req.body;
 
-    if (!email || !password) {
-        throw new BadRequestError('Please provide email and password');
-    }
+//     if (!email || !password) {
+//         throw new BadRequestError('Please provide email and password');
+//     }
 
-    const user = await User.findOne({ email });
-    console.log(user);
+//     const user = await User.findOne({ email });
+//     console.log(user);
 
-    if (!user) {
-        throw new UnauthenticatedError('Invalid Credentials');
-    }
+//     if (!user) {
+//         throw new UnauthenticatedError('Invalid Credentials');
+//     }
 
-    const isPasswordMatch = await user.comparePassword(password);
+//     const isPasswordMatch = await user.comparePassword(password);
 
-    if (!isPasswordMatch) {
-        throw new UnauthenticatedError('Invalid Credentials');
-    }
+//     if (!isPasswordMatch) {
+//         throw new UnauthenticatedError('Invalid Credentials');
+//     }
 
-    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+//     const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.json({ message: 'User signed in successfully.', token });
-};
-// Function to send verification email
+//     res.json({ message: 'User signed in successfully.', token });
+// };
+// // Function to send verification email
 const sendVerificationEmail = async (email, otp) => {
     try {
         const transporter = nodemailer.createTransport({
@@ -119,5 +119,5 @@ const sendVerificationEmail = async (email, otp) => {
 module.exports = {
     signup,
     verifyOTP,
-    signin
+    // signin
 };
